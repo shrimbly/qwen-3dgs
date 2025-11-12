@@ -88,12 +88,14 @@ class APIClient:
             List of generated image URLs
         """
         results = []
-        total_images = FULL_ROTATION // ROTATION_INCREMENT
+        # Skip 0 degrees since we already have the original image
+        angles = [angle for angle in range(ROTATION_INCREMENT, FULL_ROTATION + ROTATION_INCREMENT, ROTATION_INCREMENT)]
+        total_images = len(angles)
 
         self._log(f"Starting generation of {total_images} multi-angle views")
-        self._log(f"Rotation increment: {ROTATION_INCREMENT}°")
+        self._log(f"Rotation increment: {ROTATION_INCREMENT}° (skipping 0° - using original)")
 
-        for i, angle in enumerate(range(0, FULL_ROTATION, ROTATION_INCREMENT), 1):
+        for i, angle in enumerate(angles, 1):
             # Rotate left (positive) for positive angles
             rotate_right_left = angle
 

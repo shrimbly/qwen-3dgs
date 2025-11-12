@@ -1,7 +1,7 @@
 """Image processing and validation utilities."""
 
 import os
-import urllib.parse
+import base64
 from pathlib import Path
 from typing import Optional
 from PIL import Image
@@ -60,19 +60,18 @@ class ImageProcessor:
 
     def upload_image_to_fal(self, image_path: Path) -> str:
         """
-        Upload a local image to FAL.ai and get a URL.
+        Convert a local image to base64 data URI for FAL.ai API.
 
-        For simplicity, this function loads the file and returns a file:// URL.
-        In production, you would upload to FAL.ai's file storage.
+        FAL.ai accepts base64-encoded images as data URIs.
 
         Args:
             image_path: Path to the local image
 
         Returns:
-            URL of the uploaded image
+            Base64 data URI of the image
 
         Raises:
-            IOError: If unable to read or upload the image
+            IOError: If unable to read or encode the image
         """
         try:
             # Read the image file
@@ -81,14 +80,24 @@ class ImageProcessor:
 
             self._log(f"Read image file: {len(image_data)} bytes")
 
-            # For local development, you can use file:// URLs or base64 encoding
-            # However, FAL.ai requires proper URLs. Check if the image path is already a URL
-            # or we need to use FAL.ai's upload functionality.
+            # Determine the image format for the data URI
+            suffix = image_path.suffix.lower()
+            mime_types = {
+                ".jpg": "image/jpeg",
+                ".jpeg": "image/jpeg",
+                ".png": "image/png",
+                ".webp": "image/webp",
+                ".bmp": "image/bmp",
+                ".gif": "image/gif",
+            }
+            mime_type = mime_types.get(suffix, "image/jpeg")
 
-            # Try using the file as-is (this works with local file:// URLs)
-            file_url = Path(image_path).as_uri()
-            self._log(f"Image file URL: {file_url}")
-            return file_url
+            # Convert to base64 data URI
+            b64_data = base64.b64encode(image_data).decode("utf-8")
+            data_uri = f"data:{mime_type};base64,{b64_data}"
+
+            self._log(f"Image converted to base64 data URI ({len(data_uri)} chars)")
+            return data_uri
 
         except Exception as e:
             raise IOError(f"Failed to prepare image for upload: {e}")

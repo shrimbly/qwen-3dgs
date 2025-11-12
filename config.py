@@ -2,6 +2,10 @@
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # API Configuration
 FAL_API_ENDPOINT = "fal-ai/qwen-image-edit-plus-lora-gallery/multiple-angles"
