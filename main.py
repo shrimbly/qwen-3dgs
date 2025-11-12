@@ -12,6 +12,7 @@ import sys
 import os
 from pathlib import Path
 from datetime import datetime
+from dotenv import load_dotenv
 
 from api_client import APIClient
 from image_processor import ImageProcessor
@@ -25,9 +26,16 @@ from config import (
 
 def setup_environment():
     """Ensure FAL_KEY environment variable is set."""
+    # Load .env file if it exists
+    load_dotenv()
+
     if not os.getenv("FAL_KEY"):
         print("ERROR: FAL_KEY environment variable not set")
-        print("Please set your FAL.ai API key:")
+        print("Please set your FAL.ai API key using one of these methods:")
+        print("\nMethod 1: Create a .env file")
+        print("  Create a file named '.env' in the project directory with:")
+        print("  FAL_KEY=your_api_key_here")
+        print("\nMethod 2: Set environment variable directly")
         print("  export FAL_KEY='your_api_key_here'  # Unix/Linux/Mac")
         print("  set FAL_KEY=your_api_key_here        # Windows CMD")
         print("  $env:FAL_KEY='your_api_key_here'     # Windows PowerShell")
